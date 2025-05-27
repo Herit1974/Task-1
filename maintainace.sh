@@ -38,7 +38,7 @@ backup_files() {
     local DIR="$1"
     local DAYS="$2"
     local BACKUP_NAME="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
-    local DEST="/var/backups"
+    local DEST="/var/backups"                                    #ends up in an infinite loop need to press ctrl+c after a while to get off the process
 
     if [ ! -d "$DIR" ]; then
         add_record "BACKUP" "Failed: $DIR"
@@ -55,12 +55,12 @@ backup_files() {
     fi
 }
 
-show_logs() {
+show_logs() {                                                     #when run this shows the first 5 entries not the latest 5 entries
     echo "Last 5 Entries"
     sudo tail -n 5 "$LOG_FILE"
 }
 
-cleanup_logs() {
+cleanup_logs() {                                                   #Unable to derive the logic for this automation
 }
 
 main() {
@@ -93,4 +93,4 @@ main() {
     esac
 }
 
-main "$@"
+main "$@"                                                       #also unable to integrate the crontab for automation
