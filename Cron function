@@ -1,0 +1,2 @@
+MAILTO = "Heritpatel190704@gmail.com"
+0 2 * * * /home/heritp/internship/task-1/run_backup.sh
