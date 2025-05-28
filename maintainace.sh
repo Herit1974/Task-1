@@ -14,7 +14,7 @@ init_log_file() {
 add_record() {
     local TASK="$1"
     local MESSAGE="$2"
-    echo "[$(date +"%Y-%m-%d %H:%M:%S")] $TASK: $MESSAGE" | sudo tee -a "$LOG_FILE" > /dev/null
+    echo "[$TIMESTAMP] $TASK: $MESSAGE" | sudo tee -a "$LOG_FILE" > /dev/null
 }
 
 delete_old_files() {
@@ -30,15 +30,15 @@ delete_old_files() {
     if [ $? -eq 0 ]; then
         add_record "CLEANUP" "Success -Deleted files older than $DAYS days from $DIR"
     else
-        add_record "CLEANUP" "Failed - See /tmp/cleanup_errors.log"
+        add_record "CLEANUP" "Failed"
     fi
 }
 
-backup_files() {
+backup_files() {                                                    #Here as you can see there are two arguments required to be passed for the backup to run manually
     local DIR="$1"
-    local DAYS="$2"
-    local BACKUP_NAME="backup_$(date +%Y%m%d_%H%M%S).tar.gz"
-    local DEST="/var/backups"                                    #ends up in an infinite loop need to press ctrl+c after a while to get off the process
+    local DAYS="$2"                                                 #Now the crontab can take only one command or directory path after the defining of automation period                                                                       
+    local BACKUP_NAME="backup_$TIMESTAMP.tar.gz"                    #So what change should i make to automate the task using cron and 1 command
+    local DEST="/var/backups"
 
     if [ ! -d "$DIR" ]; then
         add_record "BACKUP" "Failed: $DIR"
@@ -55,12 +55,20 @@ backup_files() {
     fi
 }
 
-show_logs() {                                                     #when run this shows the first 5 entries not the latest 5 entries
+show_logs() {
     echo "Last 5 Entries"
     sudo tail -n 5 "$LOG_FILE"
 }
 
-cleanup_logs() {                                                   #Unable to derive the logic for this automation
+cleanup_logs() {
+    TMP_FILE=$(mktemp)  #Temporary file
+    sudo awk -v date="$(date -d '30 days ago' +%Y-%m-%d)" '$0 ~ /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}/ {                  
+        split($0, a, " ")  
+        gsub(/[\[\]]/, "", a[1])
+        if (a[1] >= date) print $0 
+ }' "$LOG_FILE" > "$TMP_FILE"                                    
+    sudo mv "$TMP_FILE" "$LOG_FILE"
+    sudo chmod 644 "$LOG_FILE"
 }
 
 main() {
@@ -93,4 +101,4 @@ main() {
     esac
 }
 
-main "$@"                                                       #also unable to integrate the crontab for automation
+main "$@"
