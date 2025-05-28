@@ -34,10 +34,10 @@ delete_old_files() {
     fi
 }
 
-backup_files() {                                                    #Here as you can see there are two arguments required to be passed for the backup to run manually
+backup_files() {                                                    
     local DIR="$1"
-    local DAYS="$2"                                                 #Now the crontab can take only one command or directory path after the defining of automation period                                                                       
-    local BACKUP_NAME="backup_$TIMESTAMP.tar.gz"                    #So what change should i make to automate the task using cron and 1 command
+    local DAYS="$2"                                                
+    local BACKUP_NAME="backup_$TIMESTAMP.tar.gz"                    
     local DEST="/var/backups"
 
     if [ ! -d "$DIR" ]; then
@@ -56,12 +56,12 @@ backup_files() {                                                    #Here as you
 }
 
 show_logs() {
-    echo "Last 5 Entries"
-    sudo tail -n 5 "$LOG_FILE"
+    echo "Last 10 Entries"
+    sudo tail -n 10 "$LOG_FILE"
 }
 
 cleanup_logs() {
-    TMP_FILE=$(mktemp)  #Temporary file
+    TMP_FILE=$(mktemp)  
     sudo awk -v date="$(date -d '30 days ago' +%Y-%m-%d)" '$0 ~ /^\[[0-9]{4}-[0-9]{2}-[0-9]{2}/ {                  
         split($0, a, " ")  
         gsub(/[\[\]]/, "", a[1])
